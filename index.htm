@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Maya Fungsi — Linear · Kuadrat · Eksponensial</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --bg:#070b16; --bg2:#0d1322; --card:#131a2e; --card2:#1a2238;
+    --border:#243049; --fg:#e8edf5; --muted:#8896b3;
+    --accent:#2dd4bf; --accent2:#fbbf24; --accent3:#fb7185;
+    --linear:#2dd4bf; --quadratic:#fbbf24; --exponential:#fb7185;
+  }
+  *{font-family:'Space Grotesk',sans-serif;box-sizing:border-box}
+  .mono{font-family:'JetBrains Mono',monospace}
+  html,body{background:var(--bg);color:var(--fg);overflow-x:hidden;margin:0;padding:0}
+  body{min-height:100vh}
+
+  /* ============ SPLASH SCREEN ============ */
+  #splash{
+    position:fixed;inset:0;z-index:9999;
+    background:radial-gradient(ellipse at center,#0d1322 0%,#070b16 70%);
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .8s ease,transform .8s ease,visibility .8s;
+    overflow:hidden;
+  }
+  #splash.hidden{opacity:0;transform:scale(1.05);visibility:hidden;pointer-events:none}
+  #splashCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+  
+  .floating-sym{
+    position:absolute;font-family:'JetBrains Mono',monospace;
+    color:rgba(45,212,191,.15);font-weight:700;
+    pointer-events:none;user-select:none;
+    animation:floatSym 12s linear infinite;
+  }
+  @keyframes floatSym{
+    0%{transform:translateY(0) rotate(0deg);opacity:0}
+    10%{opacity:1}
+    90%{opacity:1}
+    100%{transform:translateY(-120vh) rotate(360deg);opacity:0}
+  }
+  
+  .splash-grid{
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(45,212,191,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.04) 1px,transparent 1px);
+    background-size:50px 50px;
+    mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);
+  }
+  
+  .splash-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none}
+  .splash-blob1{top:-10%;left:-5%;width:40%;height:60%;background:radial-gradient(circle,#2dd4bf 0%,transparent 70%);animation:sb1 14s ease-in-out infinite}
+  .splash-blob2{bottom:-15%;right:-5%;width:45%;height:65%;background:radial-gradient(circle,#fb7185 0%,transparent 70%);animation:sb2 16s ease-in-out infinite}
+  .splash-blob3{top:30%;right:25%;width:25%;height:35%;background:radial-gradient(circle,#fbbf24 0%,transparent 70%);animation:sb3 18s ease-in-out infinite}
+  @keyframes sb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,30px) scale(1.1)}}
+  @keyframes sb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-30px) scale(1.15)}}
+  @keyframes sb3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,20px) scale(.9)}}
+  
+  .splash-content{
+    position:relative;z-index:10;
+    text-align:center;
+    max-width:640px;width:90%;
+    padding:2rem;
+  }
+  
+  .splash-logo{
+    position:relative;width:120px;height:120px;margin:0 auto 2rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .logo-ring{
+    position:absolute;inset:0;border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--accent);
+    border-right-color:var(--accent2);
+    animation:spinRing 3s linear infinite;
+  }
+  .logo-ring2{
+    position:absolute;inset:-12px;border-radius:50%;
+    border:2px dashed rgba(45,212,191,.3);
+    animation:spinRing 8s linear infinite reverse;
+  }
+  .logo-core{
+    width:90px;height:90px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,var(--accent3) 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 60px rgba(45,212,191,.5),inset 0 0 30px rgba(7,11,22,.3);
+    animation:logoPulse 2.5s ease-in-out infinite;
+  }
+  .logo-core i{font-size:2.5rem;color:var(--bg)}
+  @keyframes spinRing{to{transform:rotate(360deg)}}
+  @keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(45,212,191,.5),inset 0 0 30px rgba(7,11,22,.3)}50%{transform:scale(1.05);box-shadow:0 0 90px rgba(45,212,191,.8),inset 0 0 30px rgba(7,11,22,.3)}}
+  
+  .splash-title{
+    font-size:clamp(2.5rem,6vw,4rem);font-weight:800;line-height:1;
+    letter-spacing:-.02em;margin-bottom:.5rem;
+    animation:titleIn 1s .3s both;
+  }
+  .gradient-text{
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,var(--accent3) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .splash-subtitle{
+    color:var(--muted);font-size:1rem;letter-spacing:.3em;text-transform:uppercase;
+    margin-bottom:2.5rem;font-weight:500;
+    animation:titleIn 1s .5s both;
+  }
+  @keyframes titleIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  
+  .loader-wrap{
+    margin-bottom:2rem;
+    animation:titleIn 1s .7s both;
+  }
+  .loader-bar{
+    width:100%;height:6px;background:var(--card2);
+    border-radius:3px;overflow:hidden;position:relative;
+    border:1px solid var(--border);
+  }
+  .loader-fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--accent) 0%,var(--accent2) 50%,var(--accent3) 100%);
+    border-radius:3px;
+    transition:width .2s ease;
+    position:relative;
+    box-shadow:0 0 12px rgba(45,212,191,.6);
+  }
+  .loader-fill::after{
+    content:'';position:absolute;top:0;right:0;bottom:0;width:30px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));
+    animation:loaderShine 1.2s linear infinite;
+  }
+  @keyframes loaderShine{from{transform:translateX(-30px)}to{transform:translateX(0)}}
+  
+  .loader-info{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:.75rem;font-family:'JetBrains Mono',monospace;
+    font-size:.8rem;
+  }
+  .loader-text{color:var(--muted);min-height:1.2em}
+  .loader-pct{color:var(--accent);font-weight:700}
+  
+  .start-btn{
+    position:relative;
+    padding:18px 48px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    color:var(--bg);
+    border:none;border-radius:12px;
+    font-size:1.1rem;font-weight:700;letter-spacing:.02em;
+    cursor:pointer;display:inline-flex;align-items:center;gap:12px;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 8px 30px rgba(45,212,191,.4),0 0 0 0 rgba(45,212,191,.5);
+    overflow:hidden;
+    opacity:0;transform:translateY(20px) scale(.9);
+    pointer-events:none;
+  }
+  .start-btn.ready{
+    opacity:1;transform:translateY(0) scale(1);pointer-events:auto;
+    animation:btnPulse 2s ease-in-out infinite;
+  }
+  .start-btn:hover{
+    transform:translateY(-3px) scale(1.03);
+    box-shadow:0 12px 40px rgba(45,212,191,.6),0 0 0 8px rgba(45,212,191,.15);
+  }
+  .start-btn:active{transform:translateY(-1px) scale(.98)}
+  .start-btn i{transition:transform .3s}
+  .start-btn:hover i{transform:translateX(4px)}
+  .start-btn::before{
+    content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+    transition:left .6s;
+  }
+  .start-btn:hover::before{left:100%}
+  @keyframes btnPulse{
+    0%,100%{box-shadow:0 8px 30px rgba(45,212,191,.4),0 0 0 0 rgba(45,212,191,.5)}
+    50%{box-shadow:0 8px 30px rgba(45,212,191,.4),0 0 0 16px rgba(45,212,191,0)}
+  }
+  
+  .splash-hint{
+    margin-top:1.5rem;font-size:.8rem;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    animation:titleIn 1s .9s both;
+  }
+  .splash-hint i{color:var(--accent2)}
+  
+  .splash-footer{
+    position:absolute;bottom:24px;left:0;right:0;
+    text-align:center;font-size:.75rem;color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+  }
+  
+  /* Mini function legend on splash */
+  .splash-legend{
+    display:flex;justify-content:center;gap:1.5rem;margin-bottom:2rem;
+    animation:titleIn 1s .6s both;
+  }
+  .legend-item{
+    display:flex;align-items:center;gap:8px;
+    font-size:.75rem;font-family:'JetBrains Mono',monospace;
+    color:var(--muted);
+  }
+  .legend-dot{width:10px;height:10px;border-radius:50%}
+  .legend-dot.l{background:var(--linear);box-shadow:0 0 8px var(--linear)}
+  .legend-dot.q{background:var(--quadratic);box-shadow:0 0 8px var(--quadratic)}
+  .legend-dot.e{background:var(--exponential);box-shadow:0 0 8px var(--exponential)}
+
+  /* ============ MAIN LAB STYLES ============ */
+  #lab{opacity:0;transition:opacity .8s ease .3s}
+  #lab.revealed{opacity:1}
+  
+  .bg-ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35}
+  .blob1{top:-10%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,#2dd4bf 0%,transparent 70%);animation:float1 18s ease-in-out infinite}
+  .blob2{bottom:-15%;right:-10%;width:55%;height:55%;background:radial-gradient(circle,#fb7185 0%,transparent 70%);animation:float2 22s ease-in-out infinite}
+  .blob3{top:30%;right:20%;width:30%;height:30%;background:radial-gradient(circle,#fbbf24 0%,transparent 70%);animation:float3 25s ease-in-out infinite}
+  @keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-60px,-40px) scale(1.15)}}
+  @keyframes float3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(.9)}}
+
+  .grid-bg{background-image:linear-gradient(rgba(45,212,191,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.04) 1px,transparent 1px);background-size:40px 40px}
+
+  .tab-btn{position:relative;padding:14px 22px;color:var(--muted);transition:all .25s;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-weight:500;font-size:.95rem;background:transparent;border-left:none;border-right:none;border-top:none}
+  .tab-btn:hover{color:var(--fg)}
+  .tab-btn.active{color:var(--accent)}
+  .tab-btn.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 10px var(--accent)}
+
+  .panel{display:none;animation:fadeUp .5s ease}
+  .panel.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+  .glass{background:rgba(19,26,46,.55);backdrop-filter:blur(14px);border:1px solid var(--border)}
+
+  input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--border);outline:none}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent),0 0 12px rgba(45,212,191,.6);transition:transform .2s}
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.25)}
+  input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent)}
+  .slider-q::-webkit-slider-thumb{background:var(--accent2);box-shadow:0 0 0 1px var(--accent2),0 0 12px rgba(251,191,36,.6)}
+  .slider-q::-moz-range-thumb{background:var(--accent2)}
+  .slider-e::-webkit-slider-thumb{background:var(--accent3);box-shadow:0 0 0 1px var(--accent3),0 0 12px rgba(251,113,133,.6)}
+  .slider-e::-moz-range-thumb{background:var(--accent3)}
+
+  .btn{padding:10px 18px;border-radius:8px;font-weight:600;transition:all .2s;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;font-size:.9rem}
+  .btn-primary{background:var(--accent);color:var(--bg)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(45,212,191,.4)}
+  .btn-ghost{background:transparent;color:var(--fg);border-color:var(--border)}
+  .btn-ghost:hover{background:var(--card2);border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;color:var(--accent3);border-color:rgba(251,113,133,.4)}
+  .btn-danger:hover{background:var(--accent3);color:var(--bg);border-color:var(--accent3)}
+
+  .toggle{position:relative;display:inline-block;width:46px;height:24px}
+  .toggle input{display:none}
+  .toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:12px;transition:.3s}
+  .toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:var(--fg);border-radius:50%;transition:.3s}
+  .toggle input:checked + .toggle-slider{background:var(--accent)}
+  .toggle input:checked + .toggle-slider::before{transform:translateX(22px);background:var(--bg)}
+  .toggle-q input:checked + .toggle-slider{background:var(--accent2)}
+  .toggle-e input:checked + .toggle-slider{background:var(--accent3)}
+
+  .formula{font-family:'JetBrains Mono',monospace;background:var(--bg2);padding:14px 18px;border-radius:10px;border-left:3px solid var(--accent);font-size:1.1rem;letter-spacing:.5px}
+  .hud-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;background:var(--card2);border:1px solid var(--border);border-radius:999px;font-size:.8rem}
+  .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(45,212,191,.7)}50%{box-shadow:0 0 0 10px rgba(45,212,191,0)}}
+
+  .accent-l{color:var(--linear)}
+  .accent-q{color:var(--quadratic)}
+  .accent-e{color:var(--exponential)}
+  .bg-l{background:var(--linear)}
+  .bg-q{background:var(--quadratic)}
+  .bg-e{background:var(--exponential)}
+  .border-l{border-color:var(--linear)!important}
+  .border-q{border-color:var(--quadratic)!important}
+  .border-e{border-color:var(--exponential)!important}
+
+  .func-card{position:relative;overflow:hidden;transition:all .3s}
+  .func-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+  .func-card.linear::before{background:var(--linear)}
+  .func-card.quadratic::before{background:var(--quadratic)}
+  .func-card.exponential::before{background:var(--exponential)}
+  .func-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.3)}
+
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table th,.data-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.9rem}
+  .data-table th{background:var(--bg2);color:var(--muted);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:1px}
+  .data-table tr:hover td{background:rgba(45,212,191,.04)}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--card2);border:1px solid var(--accent);padding:14px 22px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);transform:translateX(450px);transition:transform .4s ease;z-index:1000;max-width:340px}
+  .toast.show{transform:translateX(0)}
+
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:var(--bg2)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+  .canvas-wrap{position:relative;background:linear-gradient(135deg,var(--bg2) 0%,#0a0f1c 100%);border-radius:14px;border:1px solid var(--border);overflow:hidden}
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:8px 0;cursor:pointer;user-select:none}
+  .check-box{width:20px;height:20px;border:2px solid var(--border);border-radius:5px;flex-shrink:0;margin-top:2px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+  .check-item.checked .check-box{background:var(--accent);border-color:var(--accent)}
+  .check-item.checked .check-box::after{content:'✓';color:var(--bg);font-weight:700;font-size:13px}
+
+  .input-cell{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--fg);width:100%;font-family:'JetBrains Mono',monospace;font-size:.9rem;transition:all .2s}
+  .input-cell:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.15)}
+
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-weight:700;font-size:.95rem;flex-shrink:0}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .coord-tooltip{position:absolute;background:var(--card2);border:1px solid var(--accent);padding:6px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.75rem;pointer-events:none;z-index:10;transform:translate(-50%,-130%);white-space:nowrap;display:none}
+  .coord-tooltip.show{display:block}
+  .tab-content{min-height:65vh}
+  .mini-canvas{background:var(--bg2);border-radius:8px;border:1px solid var(--border)}
+  .avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:700;color:var(--bg);box-shadow:0 0 40px rgba(45,212,191,.4)}
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH SCREEN ============ -->
+<div id="splash">
+  <div class="splash-grid"></div>
+  <div class="splash-blob splash-blob1"></div>
+  <div class="splash-blob splash-blob2"></div>
+  <div class="splash-blob splash-blob3"></div>
+  <canvas id="splashCanvas"></canvas>
+  <div id="floatingSymbols"></div>
+  
+  <div class="splash-content">
+    <div class="splash-logo">
+      <div class="logo-ring2"></div>
+      <div class="logo-ring"></div>
+      <div class="logo-core">
+        <i class="fa-solid fa-flask-vial"></i>
+      </div>
+    </div>
+    
+    <h1 class="splash-title">Lab Maya <span class="gradient-text">Fungsi</span></h1>
+    <p class="splash-subtitle">Linear · Kuadrat · Eksponensial</p>
+    
+    <div class="splash-legend">
+      <div class="legend-item"><span class="legend-dot l"></span>f(x) = ax + b</div>
+      <div class="legend-item"><span class="legend-dot q"></span>f(x) = ax² + bx + c</div>
+      <div class="legend-item"><span class="legend-dot e"></span>f(x) = a·bˣ</div>
+    </div>
+    
+    <div class="loader-wrap">
+      <div class="loader-bar">
+        <div class="loader-fill" id="loaderFill"></div>
+      </div>
+      <div class="loader-info">
+        <span class="loader-text" id="loaderText">Menginisialisasi laboratorium...</span>
+        <span class="loader-pct" id="loaderPct">0%</span>
+      </div>
+    </div>
+    
+    <button id="startBtn" class="start-btn">
+      <span>Mulai Eksplorasi</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+    
+    <div class="splash-hint">
+      <i class="fa-solid fa-volume-high"></i>
+      <span>Aktifkan suara perangkat untuk pengalaman terbaik</span>
+    </div>
+  </div>
+  
+  <div class="splash-footer">
+    Irawati Karim, S.Pd. · SMA Negeri 1 Pulau Morotai · 2024
+  </div>
+</div>
+
+<!-- ============ MAIN LAB ============ -->
+<div id="lab">
+<div class="bg-ambient">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+<div class="grid-bg fixed inset-0 z-0 pointer-events-none opacity-40"></div>
+
+<div class="relative z-10 min-h-screen">
+
+  <header class="border-b border-[var(--border)] sticky top-0 z-50 backdrop-blur-xl bg-[rgba(7,11,22,.85)]">
+    <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--accent)] via-[var(--accent2)] to-[var(--accent3)] flex items-center justify-center shadow-lg">
+          <i class="fa-solid fa-flask-vial text-2xl text-[var(--bg)]"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold leading-tight">Lab Maya <span class="gradient-text">Fungsi</span></h1>
+          <p class="text-xs text-[var(--muted)] mono">Linear · Kuadrat · Eksponensial</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="hud-pill"><span class="pulse-dot"></span><span class="mono">Fase F · Kelas X</span></div>
+        <div class="hud-pill"><i class="fa-solid fa-square-root-variable text-[var(--accent2)]"></i><span class="mono">Materi: Fungsi</span></div>
+        <button id="toggleSound" class="btn btn-ghost text-sm">
+          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+          <span id="soundLabel" class="mono">Suara</span>
+        </button>
+      </div>
+    </div>
+    <div class="border-t border-[var(--border)] bg-[rgba(7,11,22,.5)]">
+      <div class="max-w-[1600px] mx-auto px-4 flex gap-1 overflow-x-auto">
+        <button class="tab-btn active" data-tab="teori"><i class="fa-solid fa-book-open mr-2"></i>Teori</button>
+        <button class="tab-btn" data-tab="prosedur"><i class="fa-solid fa-list-check mr-2"></i>Prosedur</button>
+        <button class="tab-btn" data-tab="simulasi"><i class="fa-solid fa-chart-line mr-2"></i>Simulasi</button>
+        <button class="tab-btn" data-tab="lkpd"><i class="fa-solid fa-pen-to-square mr-2"></i>LKPD</button>
+        <button class="tab-btn" data-tab="pengembang"><i class="fa-solid fa-user-tie mr-2"></i>Pengembang</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[1600px] mx-auto px-6 py-8">
+
+    <!-- TAB TEORI -->
+    <section id="tab-teori" class="panel active tab-content">
+      <div class="glass rounded-2xl p-8 mb-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-80 h-80 opacity-10">
+          <i class="fa-solid fa-superscript absolute" style="font-size:280px;top:-40px;right:-40px;color:var(--accent)"></i>
+        </div>
+        <div class="relative">
+          <span class="badge bg-[var(--card2)] text-[var(--accent)] border border-[var(--border)]">Teori Dasar</span>
+          <h2 class="text-4xl md:text-5xl font-bold mt-3 mb-3">Karakteristik <span class="gradient-text">Fungsi</span> dalam Matematika</h2>
+          <p class="text-[var(--muted)] max-w-3xl text-lg leading-relaxed">Memahami bentuk umum dan karakteristik grafik dari fungsi linear, fungsi kuadrat, dan fungsi eksponensial sebagai tiga keluarga fungsi fundamental yang sering digunakan dalam memodelkan fenomena dunia nyata.</p>
+          <div class="flex gap-3 mt-5 flex-wrap">
+            <div class="hud-pill"><span class="w-2 h-2 rounded-full bg-l"></span><span class="mono accent-l">Linear</span></div>
+            <div class="hud-pill"><span class="w-2 h-2 rounded-full bg-q"></span><span class="mono accent-q">Kuadrat</span></div>
+            <div class="hud-pill"><span class="w-2 h-2 rounded-full bg-e"></span><span class="mono accent-e">Eksponensial</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="func-card linear glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-[rgba(45,212,191,.15)] flex items-center justify-center"><i class="fa-solid fa-arrow-trend-up text-xl accent-l"></i></div>
+              <h3 class="text-xl font-bold accent-l">Fungsi Linear</h3>
+            </div>
+            <span class="badge border border-l text-[var(--linear)]">Garis Lurus</span>
+          </div>
+          <div class="formula border-l mb-4">f(x) = ax + b</div>
+          <canvas class="mini-canvas w-full" id="miniLinear" height="160"></canvas>
+          <div class="mt-4 space-y-2 text-sm">
+            <p class="text-[var(--muted)]"><strong class="accent-l">a</strong> = gradien (kemiringan garis)</p>
+            <p class="text-[var(--muted)]"><strong class="accent-l">b</strong> = perpotongan dengan sumbu Y</p>
+            <p class="text-[var(--muted)]"><strong class="accent-l">a &gt; 0</strong>: garis naik · <strong class="accent-l">a &lt; 0</strong>: garis turun</p>
+            <p class="text-[var(--muted)]">Domain: <span class="mono">ℝ</span> · Range: <span class="mono">ℝ</span></p>
+          </div>
+        </div>
+
+        <div class="func-card quadratic glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-[rgba(251,191,36,.15)] flex items-center justify-center"><i class="fa-solid fa-mountain text-xl accent-q"></i></div>
+              <h3 class="text-xl font-bold accent-q">Fungsi Kuadrat</h3>
+            </div>
+            <span class="badge border border-q text-[var(--quadratic)]">Parabola</span>
+          </div>
+          <div class="formula border-q mb-4">f(x) = ax² + bx + c</div>
+          <canvas class="mini-canvas w-full" id="miniQuadratic" height="160"></canvas>
+          <div class="mt-4 space-y-2 text-sm">
+            <p class="text-[var(--muted)]"><strong class="accent-q">a</strong> = arah pembukaan parabola</p>
+            <p class="text-[var(--muted)]">Titik puncak: <span class="mono">(-b/2a, f(-b/2a))</span></p>
+            <p class="text-[var(--muted)]">Sumbu simetri: <span class="mono">x = -b/2a</span></p>
+            <p class="text-[var(--muted)]">Diskriminan <span class="mono">D = b² - 4ac</span></p>
+          </div>
+        </div>
+
+        <div class="func-card exponential glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-[rgba(251,113,133,.15)] flex items-center justify-center"><i class="fa-solid fa-rocket text-xl accent-e"></i></div>
+              <h3 class="text-xl font-bold accent-e">Fungsi Eksponensial</h3>
+            </div>
+            <span class="badge border border-e text-[var(--exponential)]">Pertumbuhan</span>
+          </div>
+          <div class="formula border-e mb-4">f(x) = a · bˣ</div>
+          <canvas class="mini-canvas w-full" id="miniExponential" height="160"></canvas>
+          <div class="mt-4 space-y-2 text-sm">
+            <p class="text-[var(--muted)]"><strong class="accent-e">a</strong> = nilai awal (koefisien)</p>
+            <p class="text-[var(--muted)]"><strong class="accent-e">b</strong> = basis (b &gt; 0, b ≠ 1)</p>
+            <p class="text-[var(--muted)]"><strong class="accent-e">b &gt; 1</strong>: pertumbuhan · <strong class="accent-e">0&lt;b&lt;1</strong>: peluruhan</p>
+            <p class="text-[var(--muted)]">Asimtot datar: <span class="mono">y = 0</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-table-cells-large text-[var(--accent)]"></i>Perbandingan Karakteristik</h3>
+        <div class="overflow-x-auto">
+          <table class="data-table">
+            <thead>
+              <tr><th>Aspek</th><th class="accent-l">Linear</th><th class="accent-q">Kuadrat</th><th class="accent-e">Eksponensial</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-[var(--muted)]">Bentuk Umum</td><td>f(x) = ax + b</td><td>f(x) = ax² + bx + c</td><td>f(x) = a · bˣ</td></tr>
+              <tr><td class="text-[var(--muted)]">Bentuk Grafik</td><td>Garis lurus</td><td>Parabola</td><td>Kurva melengkung</td></tr>
+              <tr><td class="text-[var(--muted)]">Domain</td><td>ℝ</td><td>ℝ</td><td>ℝ</td></tr>
+              <tr><td class="text-[var(--muted)]">Range</td><td>ℝ</td><td>[D/4a, ∞) atau (-∞, D/4a]</td><td>(0, ∞)</td></tr>
+              <tr><td class="text-[var(--muted)]">Titik Potong Y</td><td>(0, b)</td><td>(0, c)</td><td>(0, a)</td></tr>
+              <tr><td class="text-[var(--muted)]">Aplikasi</td><td>Biaya tetap, kecepatan</td><td>Gerak parabola, luas</td><td>Pertumbuhan, peluruhan</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB PROSEDUR -->
+    <section id="tab-prosedur" class="panel tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="glass rounded-2xl p-8">
+            <span class="badge bg-[var(--card2)] text-[var(--accent2)] border border-[var(--border)]">Panduan Penggunaan</span>
+            <h2 class="text-3xl font-bold mt-3 mb-6">Prosedur <span class="gradient-text">Penggunaan Lab Maya</span></h2>
+            <div class="space-y-5">
+              <div class="flex gap-4 items-start"><span class="step-num">1</span><div><h4 class="font-semibold text-lg mb-1">Pilih Tab Simulasi</h4><p class="text-[var(--muted)] text-sm">Klik tab "Simulasi" pada navigasi atas untuk memulai eksplorasi grafik fungsi secara interaktif.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">2</span><div><h4 class="font-semibold text-lg mb-1">Aktifkan Fungsi yang Dipelajari</h4><p class="text-[var(--muted)] text-sm">Gunakan tombol toggle berwarna untuk mengaktifkan fungsi linear (cyan), kuadrat (kuning), atau eksponensial (merah). Bisa satu atau beberapa sekaligus.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">3</span><div><h4 class="font-semibold text-lg mb-1">Atur Nilai Parameter</h4><p class="text-[var(--muted)] text-sm">Geser slider pada setiap panel fungsi untuk mengubah nilai parameter (a, b, c). Amati perubahan grafik dan persamaan secara real-time.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">4</span><div><h4 class="font-semibold text-lg mb-1">Amati Titik Penting</h4><p class="text-[var(--muted)] text-sm">Perhatikan penanda titik potong, titik puncak (vertex), dan asimtot yang muncul otomatis pada grafik. Arahkan kursor ke canvas untuk melihat koordinat.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">5</span><div><h4 class="font-semibold text-lg mb-1">Analisis Tabel Nilai</h4><p class="text-[var(--muted)] text-sm">Gunakan tabel nilai di bawah canvas untuk membandingkan output ketiga fungsi pada nilai x yang sama.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">6</span><div><h4 class="font-semibold text-lg mb-1">Kerjakan LKPD</h4><p class="text-[var(--muted)] text-sm">Buka tab "LKPD", kerjakan kegiatan yang tersedia dengan menggunakan simulasi sebagai alat bantu. Centang setiap kegiatan yang selesai.</p></div></div>
+              <div class="flex gap-4 items-start"><span class="step-num">7</span><div><h4 class="font-semibold text-lg mb-1">Reset dan Eksplorasi Ulang</h4><p class="text-[var(--muted)] text-sm">Gunakan tombol "Reset" untuk mengembalikan semua parameter ke nilai awal. Eksplorasi dengan kombinasi parameter lainnya.</p></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-bullseye text-[var(--accent)]"></i>Tujuan Pembelajaran</h3>
+            <ul class="space-y-3 text-sm">
+              <li class="flex gap-2"><i class="fa-solid fa-circle-check text-[var(--accent)] mt-1"></i><span>Mengidentifikasi bentuk umum fungsi linear, kuadrat, dan eksponensial</span></li>
+              <li class="flex gap-2"><i class="fa-solid fa-circle-check text-[var(--accent)] mt-1"></i><span>Menggambar grafik fungsi berdasarkan persamaan</span></li>
+              <li class="flex gap-2"><i class="fa-solid fa-circle-check text-[var(--accent)] mt-1"></i><span>Menganalisis pengaruh parameter terhadap grafik</span></li>
+              <li class="flex gap-2"><i class="fa-solid fa-circle-check text-[var(--accent)] mt-1"></i><span>Menentukan karakteristik grafik (titik potong, vertex, asimtot)</span></li>
+              <li class="flex gap-2"><i class="fa-solid fa-circle-check text-[var(--accent)] mt-1"></i><span>Membandingkan ketiga jenis fungsi</span></li>
+            </ul>
+          </div>
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-toolbox text-[var(--accent2)]"></i>Alat &amp; Bahan</h3>
+            <ul class="space-y-2 text-sm text-[var(--muted)]">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-laptop text-[var(--accent2)]"></i>Perangkat komputer/laptop</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-globe text-[var(--accent2)]"></i>Browser modern</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-volume-high text-[var(--accent2)]"></i>Speaker/headphone (opsional)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-book text-[var(--accent2)]"></i>Buku catatan</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-pen text-[var(--accent2)]"></i>Alat tulis</li>
+            </ul>
+          </div>
+          <div class="glass rounded-2xl p-6 border border-[rgba(251,113,133,.3)]">
+            <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-[var(--accent3)]"><i class="fa-solid fa-triangle-exclamation"></i>Perhatian</h3>
+            <ul class="space-y-2 text-sm text-[var(--muted)]">
+              <li>• Pastikan browser mendukung HTML5 Canvas</li>
+              <li>• Aktifkan JavaScript pada browser</li>
+              <li>• Gunakan layar minimal 1024×768 untuk pengalaman terbaik</li>
+              <li>• Volume suara dapat dinonaktifkan kapan saja</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB SIMULASI -->
+    <section id="tab-simulasi" class="panel tab-content">
+      <div class="glass rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-6">
+          <div class="flex items-center gap-3"><label class="toggle"><input type="checkbox" id="toggleLinear" checked><span class="toggle-slider"></span></label><span class="font-semibold accent-l">Linear</span></div>
+          <div class="flex items-center gap-3"><label class="toggle toggle-q"><input type="checkbox" id="toggleQuadratic" checked><span class="toggle-slider"></span></label><span class="font-semibold accent-q">Kuadrat</span></div>
+          <div class="flex items-center gap-3"><label class="toggle toggle-e"><input type="checkbox" id="toggleExponential"><span class="toggle-slider"></span></label><span class="font-semibold accent-e">Eksponensial</span></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="snapBtn" class="btn btn-ghost text-sm"><i class="fa-solid fa-camera"></i>Tangkap Grafik</button>
+          <button id="resetSim" class="btn btn-danger text-sm"><i class="fa-solid fa-rotate-left"></i>Reset</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4">
+          <div class="canvas-wrap" style="aspect-ratio:16/10">
+            <canvas id="mainCanvas" class="w-full h-full block"></canvas>
+            <div id="coordTip" class="coord-tooltip"></div>
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2 z-10">
+              <div id="eqLinear" class="hud-pill border-l text-[var(--linear)]" style="display:inline-flex"><i class="fa-solid fa-minus"></i><span class="mono">f(x) = 2x + 1</span></div>
+              <div id="eqQuadratic" class="hud-pill border-q text-[var(--quadratic)]" style="display:inline-flex"><i class="fa-solid fa-mountain"></i><span class="mono">f(x) = x² - 2x - 3</span></div>
+              <div id="eqExponential" class="hud-pill border-e text-[var(--exponential)]" style="display:none"><i class="fa-solid fa-rocket"></i><span class="mono">f(x) = 1·2ˣ</span></div>
+            </div>
+            <div class="absolute bottom-3 right-3 hud-pill text-xs"><i class="fa-solid fa-arrow-pointer text-[var(--accent)]"></i><span class="mono">Arahkan kursor ke grafik</span></div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3"><h3 class="font-bold flex items-center gap-2"><i class="fa-solid fa-table text-[var(--accent)]"></i>Tabel Nilai Fungsi</h3><span class="text-xs text-[var(--muted)] mono">x ∈ [-5, 5]</span></div>
+            <div class="overflow-x-auto"><table class="data-table" id="valueTable"><thead><tr><th>x</th><th class="accent-l" id="thL">Linear</th><th class="accent-q" id="thQ">Kuadrat</th><th class="accent-e" id="thE">Eksponensial</th></tr></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="glass rounded-2xl p-5 func-card linear">
+            <div class="flex items-center justify-between mb-4"><h3 class="font-bold accent-l flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up"></i>Fungsi Linear</h3><span class="text-xs text-[var(--muted)] mono">f(x) = ax + b</span></div>
+            <div class="space-y-4">
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Gradien (a)</label><span class="accent-l mono" id="laVal">2.0</span></div><input type="range" id="laSlider" min="-5" max="5" step="0.1" value="2"></div>
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Konstanta (b)</label><span class="accent-l mono" id="lbVal">1.0</span></div><input type="range" id="lbSlider" min="-5" max="5" step="0.1" value="1"></div>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-5 func-card quadratic">
+            <div class="flex items-center justify-between mb-4"><h3 class="font-bold accent-q flex items-center gap-2"><i class="fa-solid fa-mountain"></i>Fungsi Kuadrat</h3><span class="text-xs text-[var(--muted)] mono">f(x) = ax² + bx + c</span></div>
+            <div class="space-y-4">
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Koefisien (a)</label><span class="accent-q mono" id="qaVal">1.0</span></div><input type="range" id="qaSlider" class="slider-q" min="-3" max="3" step="0.1" value="1"></div>
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Koefisien (b)</label><span class="accent-q mono" id="qbVal">-2.0</span></div><input type="range" id="qbSlider" class="slider-q" min="-5" max="5" step="0.1" value="-2"></div>
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Konstanta (c)</label><span class="accent-q mono" id="qcVal">-3.0</span></div><input type="range" id="qcSlider" class="slider-q" min="-5" max="5" step="0.1" value="-3"></div>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-5 func-card exponential">
+            <div class="flex items-center justify-between mb-4"><h3 class="font-bold accent-e flex items-center gap-2"><i class="fa-solid fa-rocket"></i>Fungsi Eksponensial</h3><span class="text-xs text-[var(--muted)] mono">f(x) = a · bˣ</span></div>
+            <div class="space-y-4">
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Nilai awal (a)</label><span class="accent-e mono" id="eaVal">1.0</span></div><input type="range" id="eaSlider" class="slider-e" min="0.1" max="3" step="0.1" value="1"></div>
+              <div><div class="flex justify-between mb-2"><label class="text-sm text-[var(--muted)]">Basis (b)</label><span class="accent-e mono" id="ebVal">2.0</span></div><input type="range" id="ebSlider" class="slider-e" min="0.1" max="3" step="0.1" value="2"></div>
+            </div>
+          </div>
+          <div id="infoBox" class="glass rounded-2xl p-5 border border-[var(--accent)]/30">
+            <h3 class="font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-lightbulb text-[var(--accent2)]"></i>Karakteristik Grafik</h3>
+            <div id="infoContent" class="space-y-2 text-sm text-[var(--muted)]"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB LKPD -->
+    <section id="tab-lkpd" class="panel tab-content">
+      <div class="glass rounded-2xl p-8 mb-6">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+          <div>
+            <span class="badge bg-[var(--card2)] text-[var(--accent2)] border border-[var(--border)]">LKPD Fase F</span>
+            <h2 class="text-3xl font-bold mt-3 mb-2">Lembar Kerja <span class="gradient-text">Peserta Didik</span></h2>
+            <p class="text-[var(--muted)]">Eksplorasi Karakteristik Fungsi Linear, Kuadrat, dan Eksponensial</p>
+          </div>
+          <div class="text-right text-sm text-[var(--muted)]">
+            <p>Mata Pelajaran: <span class="text-[var(--fg)]">Matematika</span></p>
+            <p>Fase / Kelas: <span class="text-[var(--fg)]">F / X</span></p>
+            <p>Alokasi Waktu: <span class="text-[var(--fg)]">2 × 45 menit</span></p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div><label class="text-xs text-[var(--muted)] uppercase tracking-wider">Nama</label><input type="text" class="input-cell mt-1" placeholder="Nama lengkap"></div>
+          <div><label class="text-xs text-[var(--muted)] uppercase tracking-wider">Kelas</label><input type="text" class="input-cell mt-1" placeholder="Kelas"></div>
+          <div><label class="text-xs text-[var(--muted)] uppercase tracking-wider">Tanggal</label><input type="date" class="input-cell mt-1"></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-[rgba(45,212,191,.15)] flex items-center justify-center accent-l"><i class="fa-solid fa-1"></i></span><span class="accent-l">Kegiatan 1: Fungsi Linear</span></h3>
+          <span class="badge border border-l text-[var(--linear)]">f(x) = ax + b</span>
+        </div>
+        <div class="bg-[var(--bg2)] rounded-lg p-4 mb-4 text-sm"><p class="text-[var(--muted)] mb-2"><strong>Petunjuk:</strong> Buka tab <strong>Simulasi</strong>, aktifkan fungsi linear saja. Atur parameter dan amati grafik yang terbentuk.</p></div>
+        <div class="space-y-4">
+          <div><p class="font-medium mb-2">1. Atur slider <span class="accent-l mono">a = 2</span> dan <span class="accent-l mono">b = 1</span>. Tuliskan persamaan fungsi linear yang terbentuk!</p><input type="text" class="input-cell" placeholder="f(x) = ..."></div>
+          <div><p class="font-medium mb-2">2. Ubah nilai <span class="accent-l mono">a</span> menjadi negatif. Apa yang terjadi pada arah garis?</p><input type="text" class="input-cell" placeholder="Jawaban Anda..."></div>
+          <div><p class="font-medium mb-2">3. Tentukan titik potong grafik dengan sumbu Y ketika <span class="accent-l mono">a = 3</span> dan <span class="accent-l mono">b = -2</span>!</p><input type="text" class="input-cell" placeholder="(0, ...)"></div>
+          <div><p class="font-medium mb-2">4. Apa yang terjadi pada grafik jika nilai <span class="accent-l mono">a = 0</span>? Jelaskan!</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">5. Tentukan titik potong grafik <span class="accent-l mono">f(x) = 2x - 4</span> dengan sumbu X!</p><input type="text" class="input-cell" placeholder="(..., 0)"></div>
+        </div>
+        <div class="mt-4 check-item" data-check><div class="check-box"></div><span class="text-sm">Saya telah menyelesaikan Kegiatan 1</span></div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-[rgba(251,191,36,.15)] flex items-center justify-center accent-q"><i class="fa-solid fa-2"></i></span><span class="accent-q">Kegiatan 2: Fungsi Kuadrat</span></h3>
+          <span class="badge border border-q text-[var(--quadratic)]">f(x) = ax² + bx + c</span>
+        </div>
+        <div class="bg-[var(--bg2)] rounded-lg p-4 mb-4 text-sm"><p class="text-[var(--muted)] mb-2"><strong>Petunjuk:</strong> Nonaktifkan fungsi linear, aktifkan fungsi kuadrat. Atur parameter dan amati parabola yang terbentuk.</p></div>
+        <div class="space-y-4">
+          <div><p class="font-medium mb-2">1. Atur <span class="accent-q mono">a = 1, b = -2, c = -3</span>. Tentukan koordinat titik puncak (vertex) parabola!</p><input type="text" class="input-cell" placeholder="(x, y) = ..."></div>
+          <div><p class="font-medium mb-2">2. Tentukan persamaan sumbu simetri dari parabola pada soal no. 1!</p><input type="text" class="input-cell" placeholder="x = ..."></div>
+          <div><p class="font-medium mb-2">3. Tentukan titik potong parabola dengan sumbu X (gunakan rumus diskriminan)!</p><input type="text" class="input-cell" placeholder="(x₁, 0) dan (x₂, 0)"></div>
+          <div><p class="font-medium mb-2">4. Ubah nilai <span class="accent-q mono">a</span> menjadi negatif. Bagaimana perubahan bentuk parabola?</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">5. Apa pengaruh nilai <span class="accent-q mono">|a|</span> yang semakin besar terhadap lebar parabola?</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">6. Hitung nilai diskriminan <span class="accent-q mono">D = b² - 4ac</span> untuk <span class="accent-q mono">a=1, b=-2, c=-3</span>. Apa maknanya?</p><input type="text" class="input-cell" placeholder="D = ..."></div>
+        </div>
+        <div class="mt-4 check-item" data-check><div class="check-box"></div><span class="text-sm">Saya telah menyelesaikan Kegiatan 2</span></div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-[rgba(251,113,133,.15)] flex items-center justify-center accent-e"><i class="fa-solid fa-3"></i></span><span class="accent-e">Kegiatan 3: Fungsi Eksponensial</span></h3>
+          <span class="badge border border-e text-[var(--exponential)]">f(x) = a · bˣ</span>
+        </div>
+        <div class="bg-[var(--bg2)] rounded-lg p-4 mb-4 text-sm"><p class="text-[var(--muted)] mb-2"><strong>Petunjuk:</strong> Nonaktifkan fungsi kuadrat, aktifkan fungsi eksponensial. Atur parameter dan amati kurva yang terbentuk.</p></div>
+        <div class="space-y-4">
+          <div><p class="font-medium mb-2">1. Atur <span class="accent-e mono">a = 1</span> dan <span class="accent-e mono">b = 2</span>. Tentukan nilai <span class="accent-e mono">f(3)</span>!</p><input type="text" class="input-cell" placeholder="f(3) = ..."></div>
+          <div><p class="font-medium mb-2">2. Tentukan domain dan range dari fungsi <span class="accent-e mono">f(x) = 2ˣ</span>!</p><input type="text" class="input-cell" placeholder="Domain: ... | Range: ..."></div>
+          <div><p class="font-medium mb-2">3. Apa yang terjadi pada grafik ketika <span class="accent-e mono">b &gt; 1</span>? Jelaskan!</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">4. Ubah <span class="accent-e mono">b = 0.5</span>. Apa yang terjadi? Jelaskan konsep peluruhan!</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">5. Tentukan asimtot datar dari fungsi eksponensial <span class="accent-e mono">f(x) = a · bˣ</span>!</p><input type="text" class="input-cell" placeholder="y = ..."></div>
+          <div><p class="font-medium mb-2">6. Berikan satu contoh penerapan fungsi eksponensial dalam kehidupan sehari-hari!</p><textarea class="input-cell" rows="2" placeholder="Contoh penerapan..."></textarea></div>
+        </div>
+        <div class="mt-4 check-item" data-check><div class="check-box"></div><span class="text-sm">Saya telah menyelesaikan Kegiatan 3</span></div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-[var(--card2)] flex items-center justify-center text-[var(--accent)]"><i class="fa-solid fa-4"></i></span><span>Kegiatan 4: Perbandingan &amp; Analisis</span></h3>
+        </div>
+        <div class="space-y-4">
+          <div><p class="font-medium mb-2">1. Aktifkan ketiga fungsi secara bersamaan. Pada nilai <span class="mono">x</span> berapa ketiga fungsi memiliki nilai yang sama (jika ada)?</p><input type="text" class="input-cell" placeholder="Jawaban Anda..."></div>
+          <div><p class="font-medium mb-2">2. Manakah fungsi yang pertumbuhannya paling cepat untuk <span class="mono">x &gt; 0</span>? Jelaskan!</p><textarea class="input-cell" rows="2" placeholder="Jawaban Anda..."></textarea></div>
+          <div><p class="font-medium mb-2">3. Lengkapi tabel perbandingan berikut:</p>
+            <div class="overflow-x-auto mt-2"><table class="data-table"><thead><tr><th>Aspek</th><th>Linear</th><th>Kuadrat</th><th>Eksponensial</th></tr></thead><tbody>
+              <tr><td class="text-[var(--muted)]">Bentuk grafik</td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td></tr>
+              <tr><td class="text-[var(--muted)]">Domain</td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td></tr>
+              <tr><td class="text-[var(--muted)]">Range</td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td></tr>
+              <tr><td class="text-[var(--muted)]">Titik potong Y</td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td><td><input class="input-cell" placeholder="..."></td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+        <div class="mt-4 check-item" data-check><div class="check-box"></div><span class="text-sm">Saya telah menyelesaikan Kegiatan 4</span></div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6 border border-[var(--accent)]/30">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-flag-checkered text-[var(--accent)]"></i>Kesimpulan</h3>
+        <p class="text-[var(--muted)] text-sm mb-3">Tuliskan kesimpulan dari kegiatan yang telah Anda lakukan!</p>
+        <textarea class="input-cell" rows="5" placeholder="Berdasarkan kegiatan yang telah saya lakukan, saya menyimpulkan bahwa..."></textarea>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button id="saveLkpd" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i>Simpan Progress</button>
+        <button id="resetLkpd" class="btn btn-danger"><i class="fa-solid fa-trash"></i>Reset LKPD</button>
+      </div>
+    </section>
+
+    <!-- TAB PENGEMBANG -->
+    <section id="tab-pengembang" class="panel tab-content">
+      <div class="glass rounded-2xl p-8 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 opacity-5"><i class="fa-solid fa-user-graduate absolute" style="font-size:340px;top:-50px;right:-50px;color:var(--accent)"></i></div>
+        <div class="relative grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          <div class="flex justify-center"><div class="avatar">IK</div></div>
+          <div class="md:col-span-2">
+            <span class="badge bg-[var(--card2)] text-[var(--accent)] border border-[var(--border)]">Profil Pengembang</span>
+            <h2 class="text-3xl md:text-4xl font-bold mt-3 mb-2">Irawati Karim, <span class="gradient-text">S.Pd.</span></h2>
+            <p class="text-lg text-[var(--muted)] mb-4">Guru Matematika</p>
+            <div class="space-y-2 text-sm">
+              <p class="flex items-center gap-3"><i class="fa-solid fa-school text-[var(--accent)] w-5"></i><span>SMA Negeri 1 Pulau Morotai</span></p>
+              <p class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-[var(--accent)] w-5"></i><span>Pulau Morotai, Maluku Utara</span></p>
+              <p class="flex items-center gap-3"><i class="fa-solid fa-graduation-cap text-[var(--accent)] w-5"></i><span>Fase F · Kelas X, XI, XII</span></p>
+              <p class="flex items-center gap-3"><i class="fa-solid fa-book text-[var(--accent)] w-5"></i><span>Mata Pelajaran: Matematika</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info text-[var(--accent)]"></i>Tentang Lab Maya</h3>
+          <p class="text-[var(--muted)] text-sm leading-relaxed mb-4">Lab Maya Fungsi adalah media pembelajaran interaktif berbasis web yang dikembangkan untuk membantu peserta didik memahami karakteristik dasar fungsi linear, kuadrat, dan eksponensial beserta grafiknya.</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between py-2 border-b border-[var(--border)]"><span class="text-[var(--muted)]">Versi</span><span class="mono">1.0.0</span></div>
+            <div class="flex justify-between py-2 border-b border-[var(--border)]"><span class="text-[var(--muted)]">Tahun Pengembangan</span><span class="mono">2024</span></div>
+            <div class="flex justify-between py-2 border-b border-[var(--border)]"><span class="text-[var(--muted)]">Teknologi</span><span class="mono">HTML5, Canvas, JS</span></div>
+            <div class="flex justify-between py-2 border-b border-[var(--border)]"><span class="text-[var(--muted)]">Lisensi</span><span class="mono">Edukasi</span></div>
+            <div class="flex justify-between py-2"><span class="text-[var(--muted)]">Format Layar</span><span class="mono">16:9 Full Screen</span></div>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-bullseye text-[var(--accent2)]"></i>Tujuan Pengembangan</h3>
+          <ul class="space-y-3 text-sm text-[var(--muted)]">
+            <li class="flex gap-2"><i class="fa-solid fa-check-circle text-[var(--accent)] mt-1"></i><span>Menyediakan media visualisasi grafik fungsi yang interaktif</span></li>
+            <li class="flex gap-2"><i class="fa-solid fa-check-circle text-[var(--accent)] mt-1"></i><span>Membantu peserta didik memahami pengaruh parameter terhadap grafik</span></li>
+            <li class="flex gap-2"><i class="fa-solid fa-check-circle text-[var(--accent)] mt-1"></i><span>Mendorong eksplorasi mandiri melalui simulasi</span></li>
+            <li class="flex gap-2"><i class="fa-solid fa-check-circle text-[var(--accent)] mt-1"></i><span>Mendukung pembelajaran blended learning</span></li>
+            <li class="flex gap-2"><i class="fa-solid fa-check-circle text-[var(--accent)] mt-1"></i><span>Memberikan pengalaman belajar yang menarik dengan efek suara</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <h3 class="font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-quote-left text-[var(--accent3)]"></i>Quote Pengembang</h3>
+        <blockquote class="text-lg italic text-[var(--muted)] border-l-2 border-[var(--accent3)] pl-4">"Matematika bukan sekadar menghafal rumus, melainkan memahami pola dan hubungan antar konsep. Melalui lab maya ini, semoga peserta didik dapat melihat keindahan fungsi melalui eksplorasi visual yang interaktif."</blockquote>
+        <p class="text-right mt-3 text-sm text-[var(--muted)]">— Irawati Karim, S.Pd.</p>
+      </div>
+      <div class="text-center mt-8 text-xs text-[var(--muted)]"><p>© 2024 Lab Maya Fungsi · Dikembangkan oleh Irawati Karim, S.Pd. · SMA Negeri 1 Pulau Morotai</p></div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-[var(--border)] mt-12">
+    <div class="max-w-[1600px] mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4 text-xs text-[var(--muted)]">
+      <div class="flex items-center gap-2"><i class="fa-solid fa-flask-vial text-[var(--accent)]"></i><span>Lab Maya Fungsi · Linear, Kuadrat & Eksponensial</span></div>
+      <div class="flex items-center gap-4"><span class="mono">Fase F · Matematika</span><span>•</span><span>SMA Negeri 1 Pulau Morotai</span></div>
+    </div>
+  </footer>
+</div>
+</div>
+
+<div id="toast" class="toast">
+  <i id="toastIcon" class="fa-solid fa-circle-check text-[var(--accent)] text-xl"></i>
+  <span id="toastMsg">Pesan</span>
+</div>
+
+<script>
+// ====================== AUDIO SYSTEM ======================
+let audioCtx = null;
+let soundEnabled = true;
+
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ console.warn('Audio not supported'); }
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playTone(freq, duration, type='sine', vol=0.08){
+  if(!soundEnabled || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playSweep(f1, f2, duration, type='sine', vol=0.08){
+  if(!soundEnabled || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(f1, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(f2, audioCtx.currentTime + duration);
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playSound(type){
+  if(!soundEnabled) return;
+  initAudio();
+  switch(type){
+    case 'click': playTone(700, 0.06, 'sine', 0.06); break;
+    case 'toggle': playTone(880, 0.08, 'triangle', 0.07); setTimeout(()=>playTone(1100, 0.06, 'triangle', 0.05), 60); break;
+    case 'slide': playTone(400 + Math.random()*200, 0.03, 'sine', 0.03); break;
+    case 'success':
+      [523, 659, 784].forEach((f,i)=>setTimeout(()=>playTone(f, 0.18, 'sine', 0.08), i*90));
+      break;
+    case 'error': playTone(200, 0.2, 'sawtooth', 0.05); break;
+    case 'tab': playTone(600, 0.05, 'sine', 0.05); setTimeout(()=>playTone(800, 0.04, 'sine', 0.04), 40); break;
+    case 'reset': playTone(440, 0.1, 'square', 0.05); setTimeout(()=>playTone(330, 0.12, 'square', 0.05), 100); break;
+    case 'loadTick': playTone(1200, 0.02, 'sine', 0.02); break;
+    case 'loadComplete':
+      [523, 659, 784, 1047].forEach((f,i)=>setTimeout(()=>playTone(f, 0.2, 'sine', 0.09), i*80));
+      break;
+    case 'start':
+      playSweep(200, 800, 0.4, 'sawtooth', 0.06);
+      setTimeout(()=>[523, 659, 784, 1047, 1319].forEach((f,i)=>setTimeout(()=>playTone(f, 0.15, 'sine', 0.08), i*60)), 200);
+      break;
+    case 'whoosh': playSweep(800, 100, 0.5, 'sine', 0.05); break;
+  }
+}
+
+// ====================== SPLASH SCREEN LOGIC ======================
+const splash = document.getElementById('splash');
+const loaderFill = document.getElementById('loaderFill');
+const loaderText = document.getElementById('loaderText');
+const loaderPct = document.getElementById('loaderPct');
+const startBtn = document.getElementById('startBtn');
+const splashCanvas = document.getElementById('splashCanvas');
+const sCtx = splashCanvas.getContext('2d');
+
+const loadingMessages = [
+  'Menginisialisasi laboratorium...',
+  'Memuat modul teori fungsi...',
+  'Menyiapkan kanvas grafik...',
+  'Mengkalibrasi sumbu kartesian...',
+  'Memuat slider interaktif...',
+  'Menyiapkan lembar LKPD...',
+  'Mengaktifkan efek suara...',
+  'Siap untuk eksplorasi!'
+];
+
+// Floating math symbols
+const symbols = ['ƒ', 'x²', '∫', '∑', '√', 'π', '∞', 'bˣ', 'ax+b', 'Δ', '∂', 'eˣ'];
+const symContainer = document.getElementById('floatingSymbols');
+function spawnSymbol(){
+  const s = document.createElement('div');
+  s.className = 'floating-sym';
+  s.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+  s.style.left = Math.random()*100 + '%';
+  s.style.bottom = '-50px';
+  s.style.fontSize = (Math.random()*30 + 18) + 'px';
+  s.style.animationDuration = (Math.random()*8 + 10) + 's';
+  s.style.color = ['rgba(45,212,191,.15)','rgba(251,191,36,.12)','rgba(251,113,133,.12)'][Math.floor(Math.random()*3)];
+  symContainer.appendChild(s);
+  setTimeout(()=>s.remove(), 20000);
+}
+setInterval(spawnSymbol, 800);
+for(let i=0;i<8;i++) setTimeout(spawnSymbol, i*200);
+
+// Splash canvas - animated function curves
+function resizeSplash(){
+  const dpr = window.devicePixelRatio || 1;
+  splashCanvas.width = window.innerWidth * dpr;
+  splashCanvas.height = window.innerHeight * dpr;
+  sCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+resizeSplash();
+window.addEventListener('resize', resizeSplash);
+
+let splashProgress = 0; // 0..1, controls how much of curves are drawn
+let splashAnimId;
+function drawSplashCurves(){
+  const w = window.innerWidth, h = window.innerHeight;
+  sCtx.clearRect(0,0,w,h);
+  const pad = 80;
+  const xMin = -6, xMax = 6, yMin = -4, yMax = 8;
+  const sx = x => pad + (x-xMin)/(xMax-xMin)*(w-2*pad);
+  const sy = y => pad + (yMax-y)/(yMax-yMin)*(h-2*pad);
+  
+  // Faint grid
+  sCtx.strokeStyle = 'rgba(45,212,191,0.04)';
+  sCtx.lineWidth = 1;
+  for(let i=xMin;i<=xMax;i++){
+    sCtx.beginPath(); sCtx.moveTo(sx(i),pad); sCtx.lineTo(sx(i),h-pad); sCtx.stroke();
+  }
+  for(let i=yMin;i<=yMax;i++){
+    sCtx.beginPath(); sCtx.moveTo(pad,sy(i)); sCtx.lineTo(w-pad,sy(i)); sCtx.stroke();
+  }
+  
+  // Draw three curves progressively based on splashProgress
+  const curves = [
+    { fn: x=>2*x+1, color:'#2dd4bf', delay:0 },
+    { fn: x=>x*x-2*x-3, color:'#fbbf24', delay:0.15 },
+    { fn: x=>Math.pow(1.5,x), color:'#fb7185', delay:0.3 }
+  ];
+  
+  curves.forEach(c=>{
+    const localProg = Math.max(0, Math.min(1, (splashProgress - c.delay) / (1 - c.delay)));
+    if(localProg <= 0) return;
+    sCtx.strokeStyle = c.color;
+    sCtx.lineWidth = 3;
+    sCtx.shadowColor = c.color;
+    sCtx.shadowBlur = 15;
+    sCtx.beginPath();
+    let started = false;
+    const steps = 300;
+    const endStep = Math.floor(steps * localProg);
+    for(let i=0;i<=endStep;i++){
+      const x = xMin + (i/steps)*(xMax-xMin);
+      const y = c.fn(x);
+      if(!isFinite(y) || y<yMin-2 || y>yMax+2){ started=false; continue; }
+      const px = sx(x), py = sy(y);
+      if(!started){ sCtx.moveTo(px,py); started=true; }
+      else sCtx.lineTo(px,py);
+    }
+    sCtx.stroke();
+    sCtx.shadowBlur = 0;
+  });
+}
+
+function animateSplash(){
+  drawSplashCurves();
+  splashAnimId = requestAnimationFrame(animateSplash);
+}
+animateSplash();
+
+// Loading progress simulation
+let loadProgress = 0;
+let lastTickSound = 0;
+function simulateLoading(){
+  loadProgress += Math.random()*2.5 + 0.8;
+  if(loadProgress > 100) loadProgress = 100;
+  
+  loaderFill.style.width = loadProgress + '%';
+  loaderPct.textContent = Math.floor(loadProgress) + '%';
+  
+  const msgIdx = Math.min(loadingMessages.length-1, Math.floor(loadProgress/100*loadingMessages.length));
+  loaderText.textContent = loadingMessages[msgIdx];
+  
+  // Tick sound every ~12%
+  if(loadProgress - lastTickSound > 12){
+    playSound('loadTick');
+    lastTickSound = loadProgress;
+  }
+  
+  // Update splash curve progress (curves finish drawing at ~80% load)
+  splashProgress = Math.min(1, loadProgress/80);
+  
+  if(loadProgress >= 100){
+    playSound('loadComplete');
+    setTimeout(()=>{
+      startBtn.classList.add('ready');
+      // Pulse the start button
+      playTone(880, 0.1, 'sine', 0.05);
+    }, 300);
+    return;
+  }
+  
+  setTimeout(simulateLoading, 60 + Math.random()*80);
+}
+
+// Start loading after a brief delay
+setTimeout(simulateLoading, 600);
+
+// Start button
+startBtn.addEventListener('click', ()=>{
+  initAudio();
+  playSound('start');
+  setTimeout(()=>playSound('whoosh'), 200);
+  
+  splash.classList.add('hidden');
+  document.getElementById('lab').classList.add('revealed');
+  
+  setTimeout(()=>{
+    cancelAnimationFrame(splashAnimId);
+    splash.style.display = 'none';
+    drawMiniAll();
+    drawMain();
+    updateAll();
+    showToast('Selamat datang di Lab Maya Fungsi!','success');
+  }, 900);
+});
+
+// ====================== TOAST ======================
+const toast = document.getElementById('toast');
+const toastMsg = document.getElementById('toastMsg');
+const toastIcon = document.getElementById('toastIcon');
+function showToast(msg, type='success'){
+  toastMsg.textContent = msg;
+  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info', warn:'fa-triangle-exclamation' };
+  const colors = { success:'var(--accent)', error:'var(--accent3)', info:'var(--accent2)', warn:'var(--accent2)' };
+  toastIcon.className = `fa-solid ${icons[type]} text-xl`;
+  toastIcon.style.color = colors[type];
+  toast.style.borderColor = colors[type];
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toast.classList.remove('show'), 2800);
+}
+
+// ====================== TABS ======================
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    playSound('tab');
+    if(btn.dataset.tab === 'simulasi'){ setTimeout(drawMain, 50); }
+    if(btn.dataset.tab === 'teori'){ setTimeout(drawMiniAll, 50); }
+  });
+});
+
+// ====================== SOUND TOGGLE ======================
+const toggleSoundBtn = document.getElementById('toggleSound');
+const soundIcon = document.getElementById('soundIcon');
+const soundLabel = document.getElementById('soundLabel');
+toggleSoundBtn.addEventListener('click', ()=>{
+  soundEnabled = !soundEnabled;
+  if(soundEnabled){
+    soundIcon.className = 'fa-solid fa-volume-high';
+    soundLabel.textContent = 'Suara';
+    initAudio();
+    playSound('toggle');
+    showToast('Efek suara diaktifkan','success');
+  }else{
+    soundIcon.className = 'fa-solid fa-volume-xmark';
+    soundLabel.textContent = 'Bisu';
+    showToast('Efek suara dinonaktifkan','info');
+  }
+});
+
+// ====================== CHECKBOX LKPD ======================
+document.querySelectorAll('[data-check]').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    item.classList.toggle('checked');
+    if(item.classList.contains('checked')){
+      playSound('success');
+      showToast('Kegiatan selesai! Kerja bagus!','success');
+    }else{
+      playSound('click');
+    }
+  });
+});
+
+// ====================== SIMULATION STATE ======================
+const state = {
+  linear: { a:2, b:1, enabled:true },
+  quadratic: { a:1, b:-2, c:-3, enabled:true },
+  exponential: { a:1, b:2, enabled:false }
+};
+const defaultState = JSON.parse(JSON.stringify(state));
+
+// ====================== MAIN CANVAS ======================
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const coordTip = document.getElementById('coordTip');
+
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  if(!rect.width) return;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+const VIEW = { xMin:-8, xMax:8, yMin:-8, yMax:8 };
+function toX(x, w, pad=30){ return pad + (x - VIEW.xMin)/(VIEW.xMax - VIEW.xMin) * (w - 2*pad); }
+function toY(y, h, pad=30){ return pad + (VIEW.yMax - y)/(VIEW.yMax - VIEW.yMin) * (h - 2*pad); }
+function fromX(px, w, pad=30){ return VIEW.xMin + (px - pad)/(w - 2*pad) * (VIEW.xMax - VIEW.xMin); }
+function fromY(py, h, pad=30){ return VIEW.yMax - (py - pad)/(h - 2*pad) * (VIEW.yMax - VIEW.yMin); }
+
+function evalLinear(x, s){ return s.a * x + s.b; }
+function evalQuadratic(x, s){ return s.a*x*x + s.b*x + s.c; }
+function evalExponential(x, s){ if(s.b <= 0) return NaN; return s.a * Math.pow(s.b, x); }
+
+function drawAxes(w, h, pad=30){
+  ctx.strokeStyle = 'rgba(45,212,191,0.05)';
+  ctx.lineWidth = 1;
+  for(let i=VIEW.xMin; i<=VIEW.xMax; i+=0.5){ ctx.beginPath(); ctx.moveTo(toX(i, w, pad), pad); ctx.lineTo(toX(i, w, pad), h-pad); ctx.stroke(); }
+  for(let i=VIEW.yMin; i<=VIEW.yMax; i+=0.5){ ctx.beginPath(); ctx.moveTo(pad, toY(i, h, pad)); ctx.lineTo(w-pad, toY(i, h, pad)); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(45,212,191,0.12)';
+  for(let i=VIEW.xMin; i<=VIEW.xMax; i++){ ctx.beginPath(); ctx.moveTo(toX(i, w, pad), pad); ctx.lineTo(toX(i, w, pad), h-pad); ctx.stroke(); }
+  for(let i=VIEW.yMin; i<=VIEW.yMax; i++){ ctx.beginPath(); ctx.moveTo(pad, toY(i, h, pad)); ctx.lineTo(w-pad, toY(i, h, pad)); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(232,237,245,0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(pad, toY(0, h, pad)); ctx.lineTo(w-pad, toY(0, h, pad));
+  ctx.moveTo(toX(0, w, pad), pad); ctx.lineTo(toX(0, w, pad), h-pad);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(136,150,179,0.85)';
+  ctx.font = '11px JetBrains Mono';
+  ctx.textAlign = 'center';
+  for(let i=VIEW.xMin; i<=VIEW.xMax; i++){ if(i!==0) ctx.fillText(i, toX(i, w, pad), toY(0, h, pad)+15); }
+  ctx.textAlign = 'right';
+  for(let i=VIEW.yMin; i<=VIEW.yMax; i++){ if(i!==0) ctx.fillText(i, toX(0, w, pad)-6, toY(i, h, pad)+4); }
+  ctx.fillText('0', toX(0, w, pad)-6, toY(0, h, pad)+15);
+  ctx.fillStyle = 'rgba(232,237,245,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(w-pad, toY(0, h, pad)); ctx.lineTo(w-pad-8, toY(0, h, pad)-4); ctx.lineTo(w-pad-8, toY(0, h, pad)+4); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(toX(0, w, pad), pad); ctx.lineTo(toX(0, w, pad)-4, pad+8); ctx.lineTo(toX(0, w, pad)+4, pad+8); ctx.fill();
+  ctx.fillStyle = '#2dd4bf';
+  ctx.font = 'bold 13px JetBrains Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText('x', w-pad+4, toY(0, h, pad)+4);
+  ctx.fillText('y', toX(0, w, pad)-14, pad-6);
+}
+
+function drawFunction(w, h, fn, color, pad=30){
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  let started = false;
+  for(let px=pad; px<=w-pad; px+=0.8){
+    const x = fromX(px, w, pad);
+    const y = fn(x);
+    if(!isFinite(y) || y < VIEW.yMin-3 || y > VIEW.yMax+3){ started = false; continue; }
+    const py = toY(y, h, pad);
+    if(!started){ ctx.moveTo(px, py); started=true; }
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function drawMarker(x, y, color, label, w, h, pad=30){
+  if(y < VIEW.yMin || y > VIEW.yMax) return;
+  if(x < VIEW.xMin || x > VIEW.xMax) return;
+  const px = toX(x, w, pad), py = toY(y, h, pad);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 15;
+  ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2); ctx.stroke();
+  if(label){
+    ctx.fillStyle = 'rgba(7,11,22,0.85)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    const tw = ctx.measureText(label).width + 10;
+    ctx.fillRect(px+10, py-10, tw, 18);
+    ctx.strokeRect(px+10, py-10, tw, 18);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 10px JetBrains Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, px+15, py+3);
+  }
+}
+
+function drawAsymptote(y, color, w, h, pad=30){
+  if(y < VIEW.yMin || y > VIEW.yMax) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 6]);
+  ctx.beginPath();
+  ctx.moveTo(pad, toY(y, h, pad)); ctx.lineTo(w-pad, toY(y, h, pad));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = color;
+  ctx.font = '10px JetBrains Mono';
+  ctx.textAlign = 'right';
+  ctx.fillText(`y=${y}`, w-pad-4, toY(y, h, pad)-4);
+}
+
+function drawMain(){
+  if(!canvas.getBoundingClientRect().width) return;
+  resizeCanvas();
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0,0,w,h);
+  drawAxes(w, h);
+  if(state.exponential.enabled) drawAsymptote(0, 'rgba(251,113,133,0.4)', w, h);
+  if(state.linear.enabled) drawFunction(w, h, x=>evalLinear(x, state.linear), '#2dd4bf');
+  if(state.quadratic.enabled) drawFunction(w, h, x=>evalQuadratic(x, state.quadratic), '#fbbf24');
+  if(state.exponential.enabled) drawFunction(w, h, x=>evalExponential(x, state.exponential), '#fb7185');
+  if(state.linear.enabled){
+    drawMarker(0, state.linear.b, '#2dd4bf', `(0, ${state.linear.b.toFixed(1)})`, w, h);
+    if(state.linear.a !== 0){
+      const xi = -state.linear.b / state.linear.a;
+      drawMarker(xi, 0, '#2dd4bf', `(${xi.toFixed(1)}, 0)`, w, h);
+    }
+  }
+  if(state.quadratic.enabled){
+    const a = state.quadratic.a, b = state.quadratic.b, c = state.quadratic.c;
+    if(a !== 0){
+      const vx = -b/(2*a);
+      const vy = a*vx*vx + b*vx + c;
+      drawMarker(vx, vy, '#fbbf24', `V(${vx.toFixed(1)}, ${vy.toFixed(1)})`, w, h);
+      const D = b*b - 4*a*c;
+      if(D >= 0){
+        const x1 = (-b + Math.sqrt(D))/(2*a);
+        const x2 = (-b - Math.sqrt(D))/(2*a);
+        if(Math.abs(x1-x2) > 0.01){
+          drawMarker(x1, 0, '#fbbf24', `(${x1.toFixed(1)},0)`, w, h);
+          drawMarker(x2, 0, '#fbbf24', `(${x2.toFixed(1)},0)`, w, h);
+        }else{
+          drawMarker(x1, 0, '#fbbf24', `(${x1.toFixed(1)},0)`, w, h);
+        }
+      }
+      drawMarker(0, c, '#fbbf24', `(0, ${c.toFixed(1)})`, w, h);
+    }
+  }
+  if(state.exponential.enabled){
+    drawMarker(0, state.exponential.a, '#fb7185', `(0, ${state.exponential.a.toFixed(1)})`, w, h);
+  }
+}
+
+// ====================== MINI CANVAS ======================
+function drawMini(canvasId, fn, color){
+  const c = document.getElementById(canvasId);
+  if(!c) return;
+  const rect = c.getBoundingClientRect();
+  if(!rect.width) return;
+  const dpr = window.devicePixelRatio || 1;
+  c.width = rect.width * dpr;
+  c.height = 160 * dpr;
+  const cx = c.getContext('2d');
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  const w = rect.width, h = 160;
+  cx.clearRect(0,0,w,h);
+  const pad = 20;
+  const xMin=-5, xMax=5, yMin=-5, yMax=5;
+  const sx = (x)=>pad + (x-xMin)/(xMax-xMin)*(w-2*pad);
+  const sy = (y)=>pad + (yMax-y)/(yMax-yMin)*(h-2*pad);
+  cx.strokeStyle = 'rgba(45,212,191,0.07)';
+  cx.lineWidth = 1;
+  for(let i=xMin;i<=xMax;i++){ cx.beginPath(); cx.moveTo(sx(i),pad); cx.lineTo(sx(i),h-pad); cx.stroke(); }
+  for(let i=yMin;i<=yMax;i++){ cx.beginPath(); cx.moveTo(pad,sy(i)); cx.lineTo(w-pad,sy(i)); cx.stroke(); }
+  cx.strokeStyle = 'rgba(232,237,245,0.4)';
+  cx.lineWidth = 1.5;
+  cx.beginPath(); cx.moveTo(pad,sy(0)); cx.lineTo(w-pad,sy(0)); cx.stroke();
+  cx.beginPath(); cx.moveTo(sx(0),pad); cx.lineTo(sx(0),h-pad); cx.stroke();
+  cx.strokeStyle = color;
+  cx.lineWidth = 2.5;
+  cx.shadowColor = color;
+  cx.shadowBlur = 8;
+  cx.beginPath();
+  let started = false;
+  for(let px=pad; px<=w-pad; px+=0.8){
+    const x = xMin + (px-pad)/(w-2*pad)*(xMax-xMin);
+    const y = fn(x);
+    if(!isFinite(y) || y<yMin-2 || y>yMax+2){ started=false; continue; }
+    const py = sy(y);
+    if(!started){ cx.moveTo(px,py); started=true; }
+    else cx.lineTo(px,py);
+  }
+  cx.stroke();
+  cx.shadowBlur = 0;
+}
+
+function drawMiniAll(){
+  drawMini('miniLinear', x=>2*x+1, '#2dd4bf');
+  drawMini('miniQuadratic', x=>x*x-2*x-3, '#fbbf24');
+  drawMini('miniExponential', x=>Math.pow(2,x), '#fb7185');
+}
+
+// ====================== EQUATION DISPLAY ======================
+function updateEquations(){
+  const l = state.linear;
+  const la = l.a.toFixed(1), lb = l.b.toFixed(1);
+  const lSign = l.b >= 0 ? '+' : '-';
+  document.getElementById('eqLinear').querySelector('span').textContent = `f(x) = ${la}x ${lSign} ${Math.abs(lb)}`;
+  const q = state.quadratic;
+  const qa = q.a.toFixed(1), qb = q.b.toFixed(1), qc = q.c.toFixed(1);
+  const qbSign = q.b >= 0 ? '+' : '-';
+  const qcSign = q.c >= 0 ? '+' : '-';
+  document.getElementById('eqQuadratic').querySelector('span').textContent = `f(x) = ${qa}x² ${qbSign} ${Math.abs(qb)}x ${qcSign} ${Math.abs(qc)}`;
+  const e = state.exponential;
+  document.getElementById('eqExponential').querySelector('span').textContent = `f(x) = ${e.a.toFixed(1)}·${e.b.toFixed(1)}ˣ`;
+}
+
+// ====================== INFO BOX ======================
+function updateInfoBox(){
+  const content = document.getElementById('infoContent');
+  let html = '';
+  if(state.linear.enabled){
+    const l = state.linear;
+    const direction = l.a > 0 ? 'naik ke kanan' : (l.a < 0 ? 'turun ke kanan' : 'horizontal');
+    html += `<div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-l mt-1.5 flex-shrink-0"></span><div><strong class="accent-l">Linear:</strong> Garis ${direction}. Gradien a=${l.a.toFixed(1)}, memotong Y di ${l.b.toFixed(1)}.</div></div>`;
+  }
+  if(state.quadratic.enabled){
+    const q = state.quadratic;
+    if(q.a !== 0){
+      const vx = -q.b/(2*q.a);
+      const vy = q.a*vx*vx + q.b*vx + q.c;
+      const opens = q.a > 0 ? 'ke atas (minimum)' : 'ke bawah (maksimum)';
+      const D = q.b*q.b - 4*q.a*q.c;
+      let rootsInfo = '';
+      if(D > 0) rootsInfo = 'Memotong sumbu X di 2 titik.';
+      else if(D === 0) rootsInfo = 'Menyinggung sumbu X di 1 titik.';
+      else rootsInfo = 'Tidak memotong sumbu X.';
+      html += `<div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-q mt-1.5 flex-shrink-0"></span><div><strong class="accent-q">Kuadrat:</strong> Parabola terbuka ${opens}. Titik puncak (${vx.toFixed(2)}, ${vy.toFixed(2)}). ${rootsInfo}</div></div>`;
+    }
+  }
+  if(state.exponential.enabled){
+    const e = state.exponential;
+    const growth = e.b > 1 ? 'pertumbuhan' : (e.b < 1 && e.b > 0 ? 'peluruhan' : 'konstan');
+    html += `<div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-e mt-1.5 flex-shrink-0"></span><div><strong class="accent-e">Eksponensial:</strong> Fungsi ${growth}. Asimtot y=0. Memotong Y di (0, ${e.a.toFixed(1)}).</div></div>`;
+  }
+  if(!html) html = '<p class="text-[var(--muted)] italic">Aktifkan salah satu fungsi untuk melihat karakteristiknya.</p>';
+  content.innerHTML = html;
+}
+
+// ====================== VALUE TABLE ======================
+function updateTable(){
+  const tbody = document.querySelector('#valueTable tbody');
+  document.getElementById('thL').style.opacity = state.linear.enabled ? 1 : 0.3;
+  document.getElementById('thQ').style.opacity = state.quadratic.enabled ? 1 : 0.3;
+  document.getElementById('thE').style.opacity = state.exponential.enabled ? 1 : 0.3;
+  let html = '';
+  for(let x=-5; x<=5; x++){
+    html += '<tr>';
+    html += `<td class="font-bold">${x}</td>`;
+    if(state.linear.enabled){
+      const y = evalLinear(x, state.linear);
+      html += `<td class="accent-l">${y.toFixed(2)}</td>`;
+    }else html += '<td class="text-[var(--muted)]">—</td>';
+    if(state.quadratic.enabled){
+      const y = evalQuadratic(x, state.quadratic);
+      html += `<td class="accent-q">${y.toFixed(2)}</td>`;
+    }else html += '<td class="text-[var(--muted)]">—</td>';
+    if(state.exponential.enabled){
+      const y = evalExponential(x, state.exponential);
+      html += `<td class="accent-e">${isFinite(y) ? y.toFixed(2) : '—'}</td>`;
+    }else html += '<td class="text-[var(--muted)]">—</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+function updateAll(){
+  drawMain();
+  updateEquations();
+  updateInfoBox();
+  updateTable();
+}
+
+// ====================== SLIDERS ======================
+function bindSlider(id, target, key, valId){
+  const slider = document.getElementById(id);
+  const valEl = document.getElementById(valId);
+  slider.addEventListener('input', ()=>{
+    target[key] = parseFloat(slider.value);
+    valEl.textContent = target[key].toFixed(1);
+    updateAll();
+    playSound('slide');
+  });
+}
+bindSlider('laSlider', state.linear, 'a', 'laVal');
+bindSlider('lbSlider', state.linear, 'b', 'lbVal');
+bindSlider('qaSlider', state.quadratic, 'a', 'qaVal');
+bindSlider('qbSlider', state.quadratic, 'b', 'qbVal');
+bindSlider('qcSlider', state.quadratic, 'c', 'qcVal');
+bindSlider('eaSlider', state.exponential, 'a', 'eaVal');
+bindSlider('ebSlider', state.exponential, 'b', 'ebVal');
+
+// ====================== TOGGLES ======================
+document.getElementById('toggleLinear').addEventListener('change', e=>{
+  state.linear.enabled = e.target.checked;
+  document.getElementById('eqLinear').style.display = e.target.checked ? 'inline-flex' : 'none';
+  playSound('toggle'); updateAll();
+});
+document.getElementById('toggleQuadratic').addEventListener('change', e=>{
+  state.quadratic.enabled = e.target.checked;
+  document.getElementById('eqQuadratic').style.display = e.target.checked ? 'inline-flex' : 'none';
+  playSound('toggle'); updateAll();
+});
+document.getElementById('toggleExponential').addEventListener('change', e=>{
+  state.exponential.enabled = e.target.checked;
+  document.getElementById('eqExponential').style.display = e.target.checked ? 'inline-flex' : 'none';
+  playSound('toggle'); updateAll();
+});
+
+// ====================== RESET ======================
+document.getElementById('resetSim').addEventListener('click', ()=>{
+  Object.assign(state.linear, defaultState.linear);
+  Object.assign(state.quadratic, defaultState.quadratic);
+  Object.assign(state.exponential, defaultState.exponential);
+  document.getElementById('laSlider').value = state.linear.a;
+  document.getElementById('lbSlider').value = state.linear.b;
+  document.getElementById('qaSlider').value = state.quadratic.a;
+  document.getElementById('qbSlider').value = state.quadratic.b;
+  document.getElementById('qcSlider').value = state.quadratic.c;
+  document.getElementById('eaSlider').value = state.exponential.a;
+  document.getElementById('ebSlider').value = state.exponential.b;
+  document.getElementById('laVal').textContent = state.linear.a.toFixed(1);
+  document.getElementById('lbVal').textContent = state.linear.b.toFixed(1);
+  document.getElementById('qaVal').textContent = state.quadratic.a.toFixed(1);
+  document.getElementById('qbVal').textContent = state.quadratic.b.toFixed(1);
+  document.getElementById('qcVal').textContent = state.quadratic.c.toFixed(1);
+  document.getElementById('eaVal').textContent = state.exponential.a.toFixed(1);
+  document.getElementById('ebVal').textContent = state.exponential.b.toFixed(1);
+  document.getElementById('toggleLinear').checked = state.linear.enabled;
+  document.getElementById('toggleQuadratic').checked = state.quadratic.enabled;
+  document.getElementById('toggleExponential').checked = state.exponential.enabled;
+  document.getElementById('eqLinear').style.display = state.linear.enabled ? 'inline-flex' : 'none';
+  document.getElementById('eqQuadratic').style.display = state.quadratic.enabled ? 'inline-flex' : 'none';
+  document.getElementById('eqExponential').style.display = state.exponential.enabled ? 'inline-flex' : 'none';
+  playSound('reset');
+  showToast('Simulasi direset ke nilai awal','success');
+  updateAll();
+});
+
+// ====================== SNAPSHOT ======================
+document.getElementById('snapBtn').addEventListener('click', ()=>{
+  try{
+    const link = document.createElement('a');
+    link.download = `grafik-fungsi-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+    playSound('success');
+    showToast('Grafik berhasil disimpan!','success');
+  }catch(e){
+    showToast('Gagal menyimpan grafik','error');
+    playSound('error');
+  }
+});
+
+// ====================== LKPD ======================
+document.getElementById('saveLkpd').addEventListener('click', ()=>{
+  playSound('success');
+  const checked = document.querySelectorAll('[data-check].checked').length;
+  showToast(`Progress tersimpan! ${checked}/4 kegiatan selesai`,'success');
+});
+document.getElementById('resetLkpd').addEventListener('click', ()=>{
+  document.querySelectorAll('#tab-lkpd input[type="text"], #tab-lkpd input[type="date"], #tab-lkpd textarea').forEach(el=>{ el.value = ''; });
+  document.querySelectorAll('[data-check]').forEach(el=>el.classList.remove('checked'));
+  playSound('reset');
+  showToast('LKPD telah direset','info');
+});
+
+// ====================== COORDINATE TOOLTIP ======================
+canvas.addEventListener('mousemove', e=>{
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+  const w = rect.width, h = rect.height, pad = 30;
+  if(px < pad || px > w-pad || py < pad || py > h-pad){ coordTip.classList.remove('show'); return; }
+  const x = fromX(px, w, pad);
+  const y = fromY(py, h, pad);
+  coordTip.innerHTML = `<span class="accent-l">x</span>=${x.toFixed(2)} · <span class="accent-q">y</span>=${y.toFixed(2)}`;
+  coordTip.style.left = px + 'px';
+  coordTip.style.top = py + 'px';
+  coordTip.classList.add('show');
+});
+canvas.addEventListener('mouseleave', ()=>coordTip.classList.remove('show'));
+
+// ====================== INIT ======================
+window.addEventListener('resize', ()=>{ drawMain(); drawMiniAll(); });
+document.addEventListener('click', initAudio, { once:true });
+</script>
+</body>
+</html>
